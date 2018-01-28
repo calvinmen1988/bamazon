@@ -5,8 +5,8 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "h1gh3rc@!",
-    database: "bamazon"
+    password: "root",
+    database: "bamazonDB"
 });
 
 connection.connect(function(error) {
@@ -17,6 +17,18 @@ connection.connect(function(error) {
     showAll();
 });
 
+function showAll() {
+    console.log("Showing All Products: \n")
+    var query = connection.query("SELECT * FROM products", function(err, response) {
+        if (err) {
+            throw err;
+        };
+        for (var i = 0; i < response.length-1; i++) {
+            console.log("Item ID: "+response[i].item_id+"\n    "+response[i].product_name+"\n    "+response[i].department_name+"\n    $"+response[i].price+"\n    Stock: "+response[i].stock_quantity);
+        }
+        startQuery();
+    });
+}
 
 function startQuery() {
     inquirer.prompt ([{
@@ -26,11 +38,11 @@ function startQuery() {
     }, {
         name: "quantity",
         type: "input",
-        message: "How many would you like to buy? "
+        message: "How many units would you like to buy? "
     }]).then(function (answer) { 
         connection.query("SELECT * FROM products WHERE ?",  { item_id: answer.itemId }, function(err, res){
             if (res[0].stock_quantity < answer.quantity) {
-                console.log("Sorry we dont have enough of that product!");
+                console.log("Insufficient quantity!");
             } else {
                 var stockLeft = res[0].stock_quantity - answer.quantity;
 
